@@ -1,0 +1,65 @@
+server:
+  port: 8771 #指定启动端口号
+  servlet:
+    context-path: /eureka-server
+
+eureka:
+
+  server:
+    renewalPercentThreshold: 0.85  #阈值，默认为0.85
+    enable-self-preservation: true #false关闭自我保护机制
+  instance:
+    hostname: localhost
+    lease-renewal-interval-in-seconds: 20  #eureka客户需要多长时间发送心跳给eureka服务器，表明它仍然活着,默认为30 秒
+    prefer-ip-address: true
+    #instance-id: ${spring.cloud.client.ipAddress}:${server.port}  #eureka  status 栏显示ip
+  client:
+    #register-with-eureka: true  #是否将自己注册到Eureka，默认为true eureka集群时要打开此处
+    #fetch-registry: true   #是否向Eureka获取注册信息，默认为true eureka集群时要打开此处
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka-server/eureka/ #,http://user:123456@localhost:8772/eureka-server-one/eureka/
+      #defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@${eureka.instance.hostname}:${server.port}/eureka-server/eureka/ #,http://user:123456@localhost:8772/eureka-server-one/eureka/
+
+spring:
+  jmx:
+    default-domain: eureka
+  #security:
+  # basei:
+  #    enabled: false # 开启基于HTTP basic的认证
+  # user:
+  #    name: user
+  #   password: 123456
+  application:
+    name: eureka-server
+
+
+
+#Actuator 管理参数配置
+management:
+  endpoints:
+    web:
+      exposure:
+        # 这里用* 代表暴露所有端点只是为了观察效果，实际中按照需进行端点暴露
+        include: "*"
+  endpoint:
+    health:
+      # 详细信息显示给所有用户。
+      show-details: always
+  health:
+    status:
+      http-mapping:
+        # 自定义健康检查返回状态码对应的http状态码
+        FATAL:  503
+  #security:
+    #enabled: false
+
+#security:
+#  basic:
+#   enabled: false # 开启基于HTTP basic的认证
+#  user:
+#    name: user  # 配置登录的账号是user
+#   password: 123456 #配置登录的密码是password123
+
+
+
+
