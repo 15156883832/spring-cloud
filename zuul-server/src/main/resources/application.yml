@@ -1,0 +1,85 @@
+
+server:
+  port: 8775 #指定启动端口号
+  servlet:
+    context-path: /zuul
+
+eureka:
+
+  server:
+    renewalPercentThreshold: 0.85  #阈值，默认为0.85
+    enable-self-preservation: true #false关闭自我保护机制
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+    lease-renewal-interval-in-seconds: 20  #eureka客户需要多长时间发送心跳给eureka服务器，表明它仍然活着,默认为30 秒
+  client:
+    #register-with-eureka: true  #是否将自己注册到Eureka，默认为true
+    #fetch-registry: true   #是否向Eureka获取注册信息，默认为true
+    service-url:
+      defaultZone: http://localhost:8771/eureka-server/eureka/ #,http://user:123456@localhost:8772/eureka-server-one/eureka/
+
+spring:
+  aop:
+    auto: true  #启动aop
+  jmx:
+    default-domain: zuul
+  #security:
+  #  basei:
+  #    enabled: false # 开启基于HTTP basic的认证
+  #  user:
+  #   name: user
+  #    password: 123456
+  #application:
+    #name: eureka-server
+  application:
+    name: zuul
+
+
+
+#Actuator 管理参数配置
+management:
+  endpoints:
+    web:
+      exposure:
+        # 这里用* 代表暴露所有端点只是为了观察效果，实际中按照需进行端点暴露
+        include: "*"
+  endpoint:
+    health:
+      # 详细信息显示给所有用户。
+      show-details: always
+  health:
+    status:
+      http-mapping:
+        # 自定义健康检查返回状态码对应的http状态码
+        FATAL:  503
+  #security:
+    #enabled: false
+
+#security:
+#  basic:
+#   enabled: false # 开启基于HTTP basic的认证
+#  user:
+#    name: user  # 配置登录的账号是user
+#   password: 123456 #配置登录的密码是password123
+
+zuul:
+  shouldFilter: false  #是否开启zuul网关过滤，用于ZuulFirstFilter
+  host:
+    connect-timeout-millis: 60000
+  #ignoredServices: '*'
+  #prefix: /dev   # 访问网关路径的前缀（在映射路径的前面，一般用于区别开发的版本）
+  routes:
+    zuul-service01:       # 随意写的区分不同映射服务器的名称（只是区分不同的映射服务器）
+      path: /order/**    # 自定义映射服务器路径的名称（相当于key，外部访问这个地址会映射到下面的service-id这个value值。然后从eureka服务列表找到对应服务名称，进而负载均衡的请求一个服务器）
+      #url: http://localhost:8085/permission/user/getUserList # 这是写的固定映射url，可代替service-id。但是不能实现服务器的负载均衡和高可用，因为总是访问同一服务器
+      service-id: order
+      strip-prefix: false #注意，此处一定要加，否则转发不了！！！！！！！！！！
+    zuul-service02:
+      path: /permission/**
+      service-id: permission
+      strip-prefix: false #很关键！！！
+  strip-prefix: false
+
+
+
